@@ -25,7 +25,6 @@ neg (CB a) = CB $ flip a
 (.&.) :: CB -> CB -> CB
 (.&.) (CB a) b = a b false 
 
-
 (.|.) :: CB -> CB -> CB
 (.|.) (CB a) b = a true b 
 
