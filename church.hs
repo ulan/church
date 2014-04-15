@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module Church where
 
 -- Church encoding for booleans.
