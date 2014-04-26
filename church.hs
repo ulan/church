@@ -33,6 +33,22 @@ xor :: CB -> CB -> CB
 xor (CB a) (CB b) = CB $ \t f -> a (b f t) (b t f)
 
 
+-- Church encoding for pairs
+
+newtype CP a b = CP (forall c. (a -> b -> c) -> c)
+
+instance (Show a, Show b) => Show (CP a b) where
+    show (CP x) = show $ x (,)
+
+pair :: a -> b -> CP a b
+pair a b = CP $ \f -> f a b
+
+first :: CP a b -> a
+first (CP f) = f $ \a b -> a 
+
+second :: CP a b -> b
+second (CP f) = f $ \a b -> b 
+
 -- Church encoding for natural numbers.
 
 newtype CN = CN (forall a . (a -> a) -> a -> a)
@@ -68,18 +84,29 @@ cnum :: Integer -> CN
 cnum 0 = zero
 cnum n = suc $ cnum (n - 1)
 
-pair :: a -> a -> CB -> a
-pair n m (CB b) = b n m
-
-first :: (CB -> a) -> a
-first p = p true 
-
-second :: (CB -> a) -> a
-second p = p false
-
 pre :: CN -> CN
 pre (CN n) = second (n next (pair zero zero))
   where next p = pair (suc (first p)) (first p)
 
 sub :: CN -> CN -> CN
 sub n (CN m) = m pre n
+
+newtype CL a = CL (forall c . (a -> (CL a) -> c) -> c -> c) 
+
+instance Show a => Show (CL a) where
+    show x = show (list x)
+
+list (CL x) = x (\a c -> a : list c) [] 
+
+nil = CL $ \f c -> c
+cons x xs = CL $ \f c -> f x xs
+hd (CL l) = l (\x xs -> x) (hd (CL l))
+tl (CL l) = l (\x xs -> xs) (CL l)
+mton a b = g a b
+  where g a b | a <= b = cons a (g (a + 1) b)
+              | otherwise = nil
+
+fold f n (CL k) = k g n
+  where g x (CL k) = f x (k g n)
+
+-- main = do print $ fold (+) 0 (mton 0 100000000)
