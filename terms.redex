@@ -6,7 +6,7 @@ false = \x y -> y
 suc = \n f x -> n f (f x)
 add = \n m f x -> n f (m f x)
 mul = \n m f x -> n (m f) x
-pow = \n m f x -> m n f
+pow = \n m f -> m n f
 pair = \n m f -> f n m
 first = \p -> p true 
 second = \p -> p false
@@ -29,3 +29,7 @@ fibo = \r n -> is0 n 1 (add (r (pred n)) (r (pred (pred n))))
 fix = \x f -> f ((x x) f)
 
 fibo2 = ((fix fix) fibo) 2
+
+counter = \r n a -> is0 n a (r (pred n) (suc a))
+
+c4 = ((fix fix) counter 8 1)
