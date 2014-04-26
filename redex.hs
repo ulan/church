@@ -38,7 +38,6 @@ parseExprs = spaces >> separatedBy spaces binding
                        body <- expr ws
                        return (abstract vars body)
         var = identifier >>= return . Var
-        apply [x] = x
         apply (x : xs) = foldl App x xs
         abstract vars body = foldr Lam body vars 
         identifier = many1 (letter <|> digit <|> oneOf "_$'")
