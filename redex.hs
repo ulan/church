@@ -80,10 +80,8 @@ desugar = reverse . snd . foldl desugarOne (Map.empty, [])
 beta :: Expr -> Maybe Expr
 beta (Var _) = Nothing
 beta (App (Lam x y) z) = Just $ subst x z y
-beta (App x z) = case beta x of
-                 Just x' -> Just $ App x' z
-                 Nothing -> fmap (App x) (beta z)
-beta (Lam x y) = fmap (Lam x) (beta y)
+beta (App x z) = fmap (flip App z) (beta x)
+beta (Lam x y) = Nothing 
 
 reduce f x = case f x of
                 Just x' -> x' : reduce f x'
