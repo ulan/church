@@ -87,9 +87,9 @@ reduce f x = case f x of
                 Nothing -> []
 
 reductions ((name, expr), desugared) =
-    print (expr : desugared :reduce beta desugared)
-  where print xs = concat $ intersperse "\n" $ [name ++ " = " ++ pretty x | x <- rs]
-        rs = desugared : (take 1 $ reverse $ reduce beta desugared)
+    print (expr : desugared : reduced)
+  where print xs = concat $ intersperse "\n" $ [name ++ " = " ++ pretty x | x <- xs]
+        reduced = take 1 $ reverse $ reduce beta desugared
 
 main = do 
     str <- getContents
