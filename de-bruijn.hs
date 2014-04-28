@@ -96,8 +96,8 @@ subst z = mapfree (\depth i -> if i == depth then (add (depth + 1) z) else Var i
 beta :: Expr -> Maybe Expr
 beta (Var _) = Nothing
 beta (App (Lam y) z) = Just $ add (-1) $ subst z y
-beta (App x z) = fmap (flip App z) (beta x)
-beta (Lam y) = Nothing 
+beta (App x z) = maybe (fmap (App x) (beta z)) (Just . flip App z) (beta x)
+beta (Lam y) = fmap Lam (beta y) 
 
 reduce f x = case f x of
                 Just x' -> x' : reduce f x'

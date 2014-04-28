@@ -63,7 +63,7 @@ subst var new (Lam x y) | var == x = Lam x y
                         | Set.member x freenew = Lam x' (subst var new y') 
                         | otherwise = Lam x (subst var new y) 
   where freenew = freeVars new
-        x' = fresh (Set.union freenew (freeVars y))
+        x' = fresh (Set.union (Set.singleton var) (Set.union freenew (freeVars y)))
         y' = subst x (Var x') y
 
 desugar :: [(String, Expr)] -> [Expr]
@@ -79,8 +79,8 @@ desugar = reverse . snd . foldl desugarOne (Map.empty, [])
 beta :: Expr -> Maybe Expr
 beta (Var _) = Nothing
 beta (App (Lam x y) z) = Just $ subst x z y
-beta (App x z) = fmap (flip App z) (beta x)
-beta (Lam x y) = Nothing 
+beta (App x z) = maybe (fmap (App x) (beta z)) (Just . flip App z) (beta x)
+beta (Lam x y) = fmap (Lam x) (beta y) 
 
 reduce f x = case f x of
                 Just x' -> x' : reduce f x'
