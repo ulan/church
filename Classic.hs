@@ -1,8 +1,8 @@
 module Main where
+import Control.Applicative
 import Desugar
 import Parser
 import RawExpr
-import Text.ParserCombinators.Parsec
 import Util
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -27,7 +27,7 @@ subst var new (RawLam x y) | var == x = RawLam x y
 beta :: RawExpr -> Maybe RawExpr
 beta (RawVar _) = Nothing
 beta (RawApp (RawLam x y) z) = Just $ subst x z y
-beta (RawApp x z) = maybe (fmap (RawApp x) (beta z)) (Just . flip RawApp z) (beta x)
+beta (RawApp x z) = (flip RawApp z <$> beta x) <|> (RawApp x <$> beta z) 
 beta (RawLam x y) = fmap (RawLam x) (beta y) 
 
 reductions ((name, expr), desugared) = report name steps

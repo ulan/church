@@ -4,7 +4,7 @@ import RawExpr
 import Text.ParserCombinators.Parsec
 
 rawExprs :: Parser [(String, RawExpr)]
-rawExprs = spaces >> separatedBy spaces binding
+rawExprs = spaces *> separatedBy spaces binding
   where binding = do x <- identifier
                      inlineSpaces 
                      char '='
@@ -25,11 +25,11 @@ rawExprs = spaces >> separatedBy spaces binding
                        char '>'
                        body <- expr ws
                        return (abstract vars body)
-        var = identifier >>= return . RawVar
+        var = RawVar <$> identifier
         apply (x : xs) = foldl RawApp x xs
         abstract vars body = foldr RawLam body vars 
         identifier = many1 (letter <|> digit <|> oneOf "_$'")
         inlineSpaces = many (oneOf " \t") >> return ()
-        separatedBy sep item = many1 (item >>= \x -> sep >> return x)
+        separatedBy sep item = many1 (item <* sep)
 
 parseRawExprs = parse rawExprs "" 

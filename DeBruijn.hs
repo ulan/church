@@ -1,4 +1,5 @@
 module Main where
+import Control.Applicative
 import Data.List
 import Desugar
 import Parser
@@ -42,8 +43,8 @@ subst z = mapfree (\depth i -> if i == depth then (add (depth + 1) z) else Var i
 beta :: Expr -> Maybe Expr
 beta (Var _) = Nothing
 beta (App (Lam y) z) = Just $ add (-1) $ subst z y
-beta (App x z) = maybe (fmap (App x) (beta z)) (Just . flip App z) (beta x)
-beta (Lam y) = fmap Lam (beta y) 
+beta (App x z) = (flip App z <$> beta x) <|> (App x <$> beta z)
+beta (Lam y) = Lam <$> beta y
 
 reductions ((name, expr), desugared) = report name (map pretty (expr : desugared : steps))
   where steps = take 1 $ reverse $ map (raw []) $ reduce beta (debruijn Map.empty 0 desugared)
