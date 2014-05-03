@@ -31,7 +31,7 @@ beta (RawApp x z) = maybe (fmap (RawApp x) (beta z)) (Just . flip RawApp z) (bet
 beta (RawLam x y) = fmap (RawLam x) (beta y) 
 
 reductions ((name, expr), desugared) = report name steps
-  where steps = map pretty $ (expr : desugared : reduce beta desugared)
+  where steps = map pretty $ (expr : desugared : (take 1 $ reverse $ reduce beta desugared))
 
 main = do 
     str <- getContents

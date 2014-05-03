@@ -46,7 +46,7 @@ beta (App x z) = maybe (fmap (App x) (beta z)) (Just . flip App z) (beta x)
 beta (Lam y) = fmap Lam (beta y) 
 
 reductions ((name, expr), desugared) = report name (map pretty (expr : desugared : steps))
-  where steps = map (raw []) $ reduce beta (debruijn Map.empty 0 desugared)
+  where steps = take 1 $ reverse $ map (raw []) $ reduce beta (debruijn Map.empty 0 desugared)
 
 main = do 
     str <- getContents
